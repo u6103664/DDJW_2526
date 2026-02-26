@@ -1,0 +1,16 @@
+#title, .center{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+button.center{
+	width: 6rem;
+	height: 3rem;
+	margin-top: 1rem;
+}
+
+#title{
+	color:red;
+	text-align: center;
+}
