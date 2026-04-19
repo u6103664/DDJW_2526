@@ -16,6 +16,8 @@
             $obj->score = $row["score"];
             $obj->pairs = $row["pairs"];
             $obj->sizePairs = $row["sizePairs"] ?? 2;
+            $obj->penalty = $row["penalty"] ?? 1;
+            $obj->mode = $row["mode"] ?? 1;
             $to_ret->save = $obj;
         }
         else $to_ret->error = true;

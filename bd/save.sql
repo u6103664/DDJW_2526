@@ -6,5 +6,7 @@ CREATE TABLE Saves (
   selectedCards varchar(64),
   score number(5),
   pairs number(2),
-  sizePairs number(2)
+  sizePairs number(2),
+  penalty number(2),
+  mode number(1)
 );

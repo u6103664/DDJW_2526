@@ -13,7 +13,7 @@
         $comanda = oci_parse($connexio, $consulta);
         if (oci_execute($comanda) && $row = oci_fetch_array($comanda, OCI_NUM)){
             $id = $row[0];
-            $consulta="INSERT INTO Saves VALUES (:id, :items, :states, :lastCard, :selectedCards, :score, :pairs, :sizePairs)";
+            $consulta="INSERT INTO Saves VALUES (:id, :items, :states, :lastCard, :selectedCards, :score, :pairs, :sizePairs, :penalty, :mode)";
             $comanda = oci_parse($connexio, $consulta);
             oci_bind_by_name($comanda,":id",$id);
             oci_bind_by_name($comanda,":items",$items);
@@ -23,6 +23,8 @@
             oci_bind_by_name($comanda,":score",$_POST->score);
             oci_bind_by_name($comanda,":pairs",$_POST->pairs);
             oci_bind_by_name($comanda,":sizePairs",$_POST->sizePairs);
+            oci_bind_by_name($comanda,":penalty",$_POST->penalty);
+            oci_bind_by_name($comanda,":mode",$_POST->mode);
             oci_execute($comanda);
         }
         else{
