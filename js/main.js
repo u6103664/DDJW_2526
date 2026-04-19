@@ -7,7 +7,6 @@ $('#playMode1').on('click',
 function(){
     sessionStorage.removeItem('load');
     sessionStorage.removeItem('progressiveState');
-    sessionStorage.removeItem('progressiveScores');
     sessionStorage.gameMode = '1';
     alies = prompt("Introdueix el teu àlies: ");
     sessionStorage.playerAlias = alies;
@@ -21,10 +20,14 @@ function(){
     sessionStorage.removeItem('progressiveState');
     sessionStorage.gameMode = '2';
     alies = prompt("Introdueix el teu àlies: ");
-    sessionStorage.removeItem('progressiveScores');
     sessionStorage.playerAlias = alies;
     console.log(alies);
     window.location.assign("./html/game.html");
+});
+
+$('#scores').on('click', 
+function(){
+    window.location.assign("./html/scores.html");
 });
 
 $('#optionsMode1').on('click', 

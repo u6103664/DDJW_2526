@@ -21,6 +21,19 @@ function clamp(val, min, max){
     return Math.min(max, Math.max(min, Number(val)));
 }
 
+function saveScore(alias, mode, score){
+    let scores = [];
+    if (sessionStorage.scoresHistory){
+        scores = JSON.parse(sessionStorage.scoresHistory);
+    }
+    scores.push({
+        alias: alias || "Anònim",
+        mode: mode,
+        score: score
+    });
+    sessionStorage.scoresHistory = JSON.stringify(scores);
+}
+
 var game = {
     items: [],
     states: [],
@@ -162,6 +175,7 @@ var game = {
                 if (this.mode === 2){
                     if (this.isMaxProgressiveDifficulty()){
                         let alias = sessionStorage.playerAlias || "Anònim";
+                        saveScore(alias, "Mode 2", this.score);
                         sessionStorage.progressiveFinalScore = JSON.stringify({
                             alias: alias,
                             score: this.score
@@ -177,6 +191,8 @@ var game = {
                     }
                 }
                 else {
+                    let alias = sessionStorage.playerAlias || "Anònim";
+                    saveScore(alias, "Mode 1", this.score);
                     alert(`Has guanyat amb ${this.score} punts!!!!`);
                     this.goToMenu();
                 }
