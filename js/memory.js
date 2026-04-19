@@ -14,9 +14,11 @@ var game = {
     states: [],
     setValue: null,
     ready: 0,
+    selectedCards: [],
     lastCard: null,
     score: 200,
     pairs: 2,
+    sizePairs: 2,
     goBack: function(idx){
         this.setValue && this.setValue[idx](back);
         this.states[idx] = StateCard.ENABLE;
@@ -26,24 +28,41 @@ var game = {
         this.states[idx] = StateCard.DISABLE;
     },
     select: function(){
+        this.ready = 0;
+        this.selectedCards = [];
+        this.lastCard = null;
         if (sessionStorage.load){ // Carreguem partida
             let toLoad = JSON.parse(sessionStorage.load);
             this.items = toLoad.items;
             this.states = toLoad.states;
-            this.lastCard = toLoad.lastCard;
+            this.selectedCards = Array.isArray(toLoad.selectedCards) ? toLoad.selectedCards : (toLoad.lastCard !== null && toLoad.lastCard !== undefined ? [toLoad.lastCard] : []);
+            this.lastCard = this.selectedCards.length ? this.selectedCards[this.selectedCards.length - 1] : null;
             this.score = toLoad.score;
-            this.pairs = toLoad.pairs;
+            this.pairs = Number(toLoad.pairs);
+            this.sizePairs = Number(toLoad.sizePairs || this.sizePairs);
         }
         else{ // Nova partida
+            let savedOptions = localStorage.options && JSON.parse(localStorage.options);
+            if (savedOptions && savedOptions.pairs)
+                this.pairs = Number(savedOptions.pairs);
+            if (savedOptions && savedOptions.sizePairs)
+                this.sizePairs = Number(savedOptions.sizePairs);
             this.items = resources.slice();          
             shuffe(this.items);                      
             this.items = this.items.slice(0, this.pairs); 
-            this.items = this.items.concat(this.items);        
+            let groupedItems = [];
+            this.items.forEach(item => {
+                for (let i = 0; i < this.sizePairs; i++){
+                    groupedItems.push(item);
+                }
+            });
+            this.items = groupedItems;
             shuffe(this.items);
             this.states = new Array(this.items.length);
         }
     },
     start: function(){
+        this.ready = 0;
         this.items.forEach((_,indx)=>{
             if (this.states[indx] === StateCard.DISABLE ||
                 this.states[indx] === StateCard.DONE){
@@ -60,35 +79,39 @@ var game = {
     click: function(indx){
         if (this.states[indx] !== StateCard.ENABLE || this.ready < this.items.length) return;
         this.goFront(indx);
-        if (this.lastCard === null) this.lastCard = indx; // Primera carta clicada
-        else{ // Teníem carta prèvia
-            if (this.items[this.lastCard] === this.items[indx]){
-                this.pairs--;
-                this.states[this.lastCard] = this.states[indx] = StateCard.DONE;
-                if (this.pairs <= 0){
-                    alert(`Has guanyat amb ${this.score} punts!!!!`);
-                    window.location.assign("../");
-                }
+        this.selectedCards.push(indx);
+        this.lastCard = indx;
+        if (this.selectedCards.length < this.sizePairs) return;
+
+        let isMatch = this.selectedCards.every(cardIdx => this.items[cardIdx] === this.items[this.selectedCards[0]]);
+        if (isMatch){
+            this.selectedCards.forEach(cardIdx => this.states[cardIdx] = StateCard.DONE);
+            this.pairs--;
+            if (this.pairs <= 0){
+                alert(`Has guanyat amb ${this.score} punts!!!!`);
+                window.location.assign("../");
             }
-            else {
-                this.goBack(indx);
-                this.goBack(this.lastCard);
-                this.score -= 25;
-                if (this.score <= 0){
-                    alert ("Has perdut");
-                    window.location.assign("../");
-                }
-            }
-            this.lastCard = null;
         }
+        else {
+            this.selectedCards.forEach(cardIdx => this.goBack(cardIdx));
+            this.score -= 25;
+            if (this.score <= 0){
+                alert ("Has perdut");
+                window.location.assign("../");
+            }
+        }
+        this.selectedCards = [];
+        this.lastCard = null;
     },
     save: function(){
         let to_save = JSON.stringify({
             items: this.items,
             states: this.states,
             lastCard: this.lastCard,
+            selectedCards: this.selectedCards,
             score: this.score,
-            pairs: this.pairs
+            pairs: this.pairs,
+            sizePairs: this.sizePairs
         });
         let ret = false;
         fetch('../php/save.php', {

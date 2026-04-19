@@ -12,8 +12,10 @@
             $obj->items = json_decode($row["items"]);
             $obj->states = json_decode($row["states"]);
             $obj->lastCard = $row["lastCard"];
+            $obj->selectedCards = json_decode($row["selectedCards"] ?? '[]');
             $obj->score = $row["score"];
             $obj->pairs = $row["pairs"];
+            $obj->sizePairs = $row["sizePairs"] ?? 2;
             $to_ret->save = $obj;
         }
         else $to_ret->error = true;

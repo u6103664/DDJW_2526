@@ -5,6 +5,7 @@
         $_POST = json_decode(file_get_contents('php://input', true));
         $items = json_encode($_POST->items);
         $states = json_encode($_POST->states);
+        $selectedCards = json_encode($_POST->selectedCards ?? array());
 
         $connexio = oci_connect('*********', '*********', 'ORCLCDB');
 
@@ -12,14 +13,16 @@
         $comanda = oci_parse($connexio, $consulta);
         if (oci_execute($comanda) && $row = oci_fetch_array($comanda, OCI_NUM)){
             $id = $row[0];
-            $consulta="INSERT INTO Saves VALUES (:id, :items, :states, :lastCard, :score, :pairs)";
+            $consulta="INSERT INTO Saves VALUES (:id, :items, :states, :lastCard, :selectedCards, :score, :pairs, :sizePairs)";
             $comanda = oci_parse($connexio, $consulta);
             oci_bind_by_name($comanda,":id",$id);
             oci_bind_by_name($comanda,":items",$items);
             oci_bind_by_name($comanda,":states",$states);
             oci_bind_by_name($comanda,":lastCard",$_POST->lastCard);
+            oci_bind_by_name($comanda,":selectedCards",$selectedCards);
             oci_bind_by_name($comanda,":score",$_POST->score);
             oci_bind_by_name($comanda,":pairs",$_POST->pairs);
+            oci_bind_by_name($comanda,":sizePairs",$_POST->sizePairs);
             oci_execute($comanda);
         }
         else{
