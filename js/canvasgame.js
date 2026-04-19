@@ -9,40 +9,83 @@ const e_click = {click: false, x: -1, y: -1}
 let key = null;
 const c_w = 96;
 const c_h = 128;
+const gap = 12;
 let idxSel = -1;
 
 if (canvas){
-    game.attr("width", 800);
-    game.attr("height", 600);
     start();
     update();
+}
+
+function updateCanvasSize(cardCount){
+    let panel = game.parent()[0];
+    let availableWidth = panel ? Math.max(320, panel.clientWidth - 40) : 800;
+    let cols = Math.max(1, Math.floor((availableWidth + gap) / (c_w + gap)));
+    cols = Math.min(cols, Math.max(1, cardCount));
+    let rows = Math.max(1, Math.ceil(cardCount / cols));
+
+    let contentWidth = cols * c_w + (cols - 1) * gap;
+    let contentHeight = rows * c_h + (rows - 1) * gap;
+
+    game.attr("width", Math.max(contentWidth + 20, availableWidth));
+    game.attr("height", contentHeight + 20);
+}
+
+function layoutCards(){
+    let width = Number(game.attr("width"));
+    let cols = Math.max(1, Math.floor((width - 20 + gap) / (c_w + gap)));
+    cols = Math.min(cols, Math.max(1, cards.length));
+    let rows = Math.max(1, Math.ceil(cards.length / cols));
+
+    let contentWidth = cols * c_w + (cols - 1) * gap;
+    let contentHeight = rows * c_h + (rows - 1) * gap;
+    let startX = Math.max(10, Math.floor((width - contentWidth) / 2));
+    let startY = 10;
+    if (Number(game.attr("height")) > contentHeight + 20){
+        startY = Math.floor((Number(game.attr("height")) - contentHeight) / 2);
+    }
+
+    cards.forEach((card, indx) => {
+        let col = indx % cols;
+        let row = Math.floor(indx / cols);
+        let x = startX + col * (c_w + gap);
+        let y = startY + row * (c_h + gap);
+        card.position = {
+            xMin: x,
+            xMax: x + c_w,
+            yMin: y,
+            yMax: y + c_h
+        };
+    });
 }
 
 function start(){
     selectCards();
     cards = gameItems.map((c)=>{return {texture:c}});
-    loadCardResource("../resources/back.png");
+    updateCanvasSize(cards.length);
+    loadCardResource("../resources/back.svg");
     cards.forEach((card, indx) => {
         loadCardResource(card.texture);
         initCard(val => card.texture = val);
-        card.position = {
-            xMin: 2+100*indx,
-            xMax: 2+100*indx + c_w,
-            yMin: 0,
-            yMax: c_h
-        }
         card.onClick = function(x, y){
             return x >= this.position.xMin && x <= this.position.xMax &&
                     y >= this.position.yMin && y <= this.position.yMax;
         }
     });
+    layoutCards();
     // Vincular events
     game.on('click', function(e){
+        let rect = this.getBoundingClientRect();
         e_click.click = true;
-        e_click.x = e.pageX - this.offsetLeft;
-        e_click.y = e.pageY - this.offsetTop;
+        e_click.x = e.clientX - rect.left;
+        e_click.y = e.clientY - rect.top;
     });
     $(document).keydown(e=>key = e.key);
+    $(window).on('resize', function(){
+        updateCanvasSize(cards.length);
+        layoutCards();
+    });
+    $('#save').on('click', ()=>saveGame());
     startGame();
 }
 

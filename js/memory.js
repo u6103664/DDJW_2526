@@ -1,7 +1,7 @@
-const resources = ['../resources/cb.png', '../resources/co.png',
-                '../resources/sb.png', '../resources/so.png',
-                '../resources/tb.png', '../resources/to.png'];
-const back = '../resources/back.png';
+const resources = ['../resources/cb.svg', '../resources/co.svg',
+                '../resources/sb.svg', '../resources/so.svg',
+                '../resources/tb.svg', '../resources/to.svg'];
+const back = '../resources/back.svg';
 
 const StateCard = Object.freeze({
   DISABLE: 0,
@@ -19,6 +19,19 @@ const BASE_PENALTY = 25;
 
 function clamp(val, min, max){
     return Math.min(max, Math.max(min, Number(val)));
+}
+
+function saveScore(alias, mode, score){
+    let scores = [];
+    if (sessionStorage.scoresHistory){
+        scores = JSON.parse(sessionStorage.scoresHistory);
+    }
+    scores.push({
+        alias: alias || "Anònim",
+        mode: mode,
+        score: score
+    });
+    sessionStorage.scoresHistory = JSON.stringify(scores);
 }
 
 var game = {
@@ -111,6 +124,9 @@ var game = {
             this.pairs = Number(toLoad.pairs);
             this.sizePairs = Number(toLoad.sizePairs || this.sizePairs);
             this.penalty = Number(toLoad.penalty || this.penalty);
+            if (toLoad.progressiveState)
+                sessionStorage.progressiveState = JSON.stringify(toLoad.progressiveState);
+            sessionStorage.removeItem('load');
         }
         else{ // Nova partida
             if (this.mode === 2 && sessionStorage.progressiveState){
@@ -161,7 +177,13 @@ var game = {
             if (this.pairs <= 0){
                 if (this.mode === 2){
                     if (this.isMaxProgressiveDifficulty()){
-                        alert(`Has guanyat el mode progressiu amb ${this.score} punts!!!!`);
+                        let alias = sessionStorage.playerAlias || "Anònim";
+                        saveScore(alias, "Mode 2", this.score);
+                        sessionStorage.progressiveFinalScore = JSON.stringify({
+                            alias: alias,
+                            score: this.score
+                        });
+                        alert(`${alias}\n\nHas guanyat el mode progressiu!\n\nPuntuació final: ${this.score} punts!!!!`);
                         this.goToMenu();
                     }
                     else {
@@ -172,6 +194,8 @@ var game = {
                     }
                 }
                 else {
+                    let alias = sessionStorage.playerAlias || "Anònim";
+                    saveScore(alias, "Mode 1", this.score);
                     alert(`Has guanyat amb ${this.score} punts!!!!`);
                     this.goToMenu();
                 }
@@ -189,7 +213,7 @@ var game = {
         this.lastCard = null;
     },
     save: function(){
-        let to_save = JSON.stringify({
+        let to_save = {
             items: this.items,
             states: this.states,
             lastCard: this.lastCard,
@@ -198,21 +222,12 @@ var game = {
             mode: this.mode,
             pairs: this.pairs,
             sizePairs: this.sizePairs,
-            penalty: this.penalty
-        });
-        let ret = false;
-        fetch('../php/save.php', {
-            method: "POST",
-            body: to_save,
-            headers: {"Content-type": "application/json; charset=UTF-8"}
-        })
-        .then(response => ret = JSON.parse(response))
-        .catch (err => console.error(err));
-
-        if (!ret) {
-            console.warn("La partida s'ha guardat en local.");
-            localStorage.save = to_save;
-        }
+            penalty: this.penalty,
+            playerAlias: sessionStorage.playerAlias || "Anònim",
+            progressiveState: sessionStorage.progressiveState ? JSON.parse(sessionStorage.progressiveState) : null
+        };
+        localStorage.save = JSON.stringify(to_save);
+        alert("Partida guardada en local.");
         window.location.assign("../");
     }
 }
