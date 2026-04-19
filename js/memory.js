@@ -161,7 +161,12 @@ var game = {
             if (this.pairs <= 0){
                 if (this.mode === 2){
                     if (this.isMaxProgressiveDifficulty()){
-                        alert(`Has guanyat el mode progressiu amb ${this.score} punts!!!!`);
+                        let alias = sessionStorage.playerAlias || "Anònim";
+                        sessionStorage.progressiveFinalScore = JSON.stringify({
+                            alias: alias,
+                            score: this.score
+                        });
+                        alert(`${alias}\n\nHas guanyat el mode progressiu!\n\nPuntuació final: ${this.score} punts!!!!`);
                         this.goToMenu();
                     }
                     else {
