@@ -11,7 +11,7 @@ function(){
     alies = prompt("Introdueix el teu àlies: ");
     sessionStorage.playerAlias = alies;
     console.log(alies);
-    window.location.assign("./html/game.html");
+    window.location.assign("./html/canvasgame.html");
 });
 
 $('#playMode2').on('click', 
@@ -22,7 +22,7 @@ function(){
     alies = prompt("Introdueix el teu àlies: ");
     sessionStorage.playerAlias = alies;
     console.log(alies);
-    window.location.assign("./html/game.html");
+    window.location.assign("./html/canvasgame.html");
 });
 
 $('#scores').on('click', 
@@ -61,7 +61,7 @@ function(){
     }
     sessionStorage.load = to_load;
     sessionStorage.removeItem('progressiveState');
-    window.location.assign("./html/game.html");
+    window.location.assign("./html/canvasgame.html");
 });
 
 $('#exit').on('click', 
