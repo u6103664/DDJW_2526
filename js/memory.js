@@ -1,7 +1,7 @@
-const resources = ['../resources/cb.png', '../resources/co.png',
-                '../resources/sb.png', '../resources/so.png',
-                '../resources/tb.png', '../resources/to.png'];
-const back = '../resources/back.png';
+const resources = ['../resources/cb.svg', '../resources/co.svg',
+                '../resources/sb.svg', '../resources/so.svg',
+                '../resources/tb.svg', '../resources/to.svg'];
+const back = '../resources/back.svg';
 
 const StateCard = Object.freeze({
   DISABLE: 0,
