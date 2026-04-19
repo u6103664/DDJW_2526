@@ -85,6 +85,7 @@ function start(){
         updateCanvasSize(cards.length);
         layoutCards();
     });
+    $('#save').on('click', ()=>saveGame());
     startGame();
 }
 
